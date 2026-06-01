@@ -1,0 +1,65 @@
+﻿@page "/siren"
+
+@using Ranaraghini.Services
+@using Plugin.Maui.Audio
+
+@inject SessionService SessionService
+@inject NavigationManager Navigation
+@inject IAudioManager AudioManager
+
+<PageTitle>Emergency Siren</PageTitle>
+
+<div class="feature-page">
+
+    <div class="feature-card">
+
+        <h1>🔊 Emergency Siren</h1>
+
+        <p>
+            Trigger loud emergency sound.
+        </p>
+
+        <button class="feature-btn"
+                @onclick="PlaySiren">
+
+            Start Siren
+
+        </button>
+
+    </div>
+
+</div>
+@code {
+
+    private IAudioPlayer? _player;
+
+    private async Task PlaySiren()
+    {
+        try
+        {
+            var stream =
+                await FileSystem.OpenAppPackageFileAsync(
+                    "siren.mp3");
+
+            _player =
+                AudioManager.CreatePlayer(stream);
+
+            _player.Play();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex.ToString());
+        }
+    }
+
+    protected override void OnInitialized()
+    {
+        bool loggedIn =
+            SessionService.IsLoggedIn();
+
+        if (!loggedIn)
+        {
+            Navigation.NavigateTo("/login");
+        }
+    }
+} 

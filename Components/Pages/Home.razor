@@ -1,0 +1,354 @@
+﻿@page "/"
+
+@using Ranaraghini.Data
+@using Ranaraghini.Services
+@using Ranaraghini.Models
+
+@inject AppDatabase Database
+@inject LocationService LocationService
+@inject SosService SosService
+@inject PermissionService PermissionService
+@inject ApiSmsService ApiSmsService
+@inject SessionService SessionService
+@inject NavigationManager Navigation
+@inject ICallService CallService
+
+<PageTitle>Ranaraghini</PageTitle>
+
+<div class="main-container">
+
+    <!-- HEADER -->
+
+    <div class="header-section text-center">
+
+        <img src="images/logo.jpg"
+             class="app-logo"
+             alt="Ranaraghini Logo" />
+
+        <h1 class="app-title">
+            Ranaraghini
+        </h1>
+
+        <p class="app-subtitle">
+            Women Safety & Emergency Assistance
+        </p>
+
+    </div>
+
+    <!-- COUNTDOWN -->
+
+    <div class="countdown-text">
+
+        @countdownMessage
+
+    </div>
+
+    <!-- SOS BUTTON -->
+
+    <div class="sos-container">
+
+        <button class="sos-button"
+                @onclick="StartSOSCountdown">
+
+            SOS
+
+        </button>
+
+    </div>
+
+    <!-- QUICK ACTIONS -->
+
+    <div class="container quick-actions-section">
+
+        <div class="row g-4">
+
+            
+
+            <div class="col-12 col-md-6">
+                <NavLink href="/siren" class="action-link">
+
+                    <div class="action-card">
+
+                        <div class="card-icon">
+                            🔊
+                        </div>
+
+                        <h5>
+                            Emergency Siren
+                        </h5>
+
+                        <p>
+                            Trigger loud emergency alarm
+                        </p>
+
+                    </div>
+                </NavLink>
+            </div>
+
+            <div class="col-12 col-md-6">
+
+                <NavLink href="/alerts" class="action-link">
+
+                    <div class="action-card" >
+
+                        <div class="card-icon">
+                            🚨
+                        </div>
+
+                        <h5>
+                            Alert System
+                        </h5>
+
+                        <p>
+                            Send SOS notifications instantly
+                        </p>
+
+                    </div>
+
+                </NavLink>
+
+            </div>
+            <div class="col-12 col-md-6">
+
+                <NavLink href="/nearbypolice"
+                         class="action-link">
+
+                    <div class="action-card">
+
+                        <div class="card-icon">
+                            🚓
+                        </div>
+
+                        <h5>
+                            Nearby Police
+                        </h5>
+
+                        <p>
+                            Find nearby police stations
+                        </p>
+
+                    </div>
+
+                </NavLink>
+
+            </div>
+            <div class="col-12 col-md-6">
+                <NavLink href="/voicesos"class="action-link">
+
+                    <div class="action-card">
+
+                        <div class="card-icon">
+                            🎤
+                        </div>
+
+                        <h5>
+                            Voice SOS
+                        </h5>
+
+                        <p>
+                            Activate SOS using voice command
+                        </p>
+
+                    </div>
+                </NavLink>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+@code {
+
+    private string countdownMessage = "";
+
+    private bool isSendingSOS = false;
+
+    // ====================================
+    // START SOS COUNTDOWN
+    // ====================================
+
+    private async Task StartSOSCountdown()
+    {
+        // PREVENT MULTIPLE CLICKS
+
+        if (isSendingSOS)
+            return;
+
+        countdownMessage = "Activating SOS in 3";
+        StateHasChanged();
+
+        await Task.Delay(1000);
+
+        countdownMessage = "Activating SOS in 2";
+        StateHasChanged();
+
+        await Task.Delay(1000);
+
+        countdownMessage = "Activating SOS in 1";
+        StateHasChanged();
+
+        await Task.Delay(1000);
+
+        countdownMessage = "";
+        StateHasChanged();
+
+        await ActivateSOS();
+    }
+
+
+    // ====================================
+    // ACTIVATE SOS
+    // ====================================
+
+   private async Task ActivateSOS()
+{
+    isSendingSOS = true;
+
+    try
+    {
+        bool granted =
+            await PermissionService.RequestPermissions();
+
+        if (!granted)
+        {
+            await Application.Current!.Windows[0].Page!.DisplayAlert(
+                "Permission Error",
+                "Required permissions denied.",
+                "OK");
+            return;
+        }
+
+        var contacts =
+            await Database.GetContactsAsync();
+
+        if (contacts.Count == 0)
+        {
+            await Application.Current!.Windows[0].Page!.DisplayAlert(
+                "No Contacts",
+                "Please add emergency contacts first.",
+                "OK");
+            return;
+        }
+
+        var location =
+            await LocationService.GetCurrentLocation();
+
+        if (location == null)
+        {
+            await Application.Current!.Windows[0].Page!.DisplayAlert(
+                "Location Error",
+                "Unable to fetch location.",
+                "OK");
+            return;
+        }
+
+        double latitude = location.Latitude;
+        double longitude = location.Longitude;
+
+        string mapsLink =
+            $"https://maps.google.com/?q={latitude},{longitude}";
+
+        string message =
+            $"SOS! Need help.\n{mapsLink}";
+
+        AlertHistory alert = new AlertHistory
+        {
+            Message = message,
+            Latitude = latitude,
+            Longitude = longitude,
+            AlertTime = DateTime.Now
+        };
+
+        await Database.SaveAlertAsync(alert);
+
+        LiveLocation liveLocation = new LiveLocation
+        {
+            Latitude = latitude,
+            Longitude = longitude,
+            Address = mapsLink,
+            DateTime = DateTime.Now
+        };
+
+        await Database.SaveLocationAsync(liveLocation);
+
+        contacts = contacts
+            .GroupBy(x => x.PhoneNumber)
+            .Select(x => x.First())
+            .ToList();
+
+        int successCount = 0;
+
+        foreach (var contact in contacts)
+        {
+            bool smsSent =
+                await ApiSmsService.SendSms(
+                    contact.PhoneNumber,
+                    message);
+
+            if (smsSent)
+            {
+                successCount++;
+
+                await Database.SaveSmsHistoryAsync(
+                    new SmsHistory
+                    {
+                        PhoneNumber = contact.PhoneNumber,
+                        Message = message,
+                        SentTime = DateTime.Now
+                    });
+            }
+
+            await Task.Delay(3000);
+        }
+
+        await Application.Current!.Windows[0].Page!.DisplayAlert(
+            "SMS Status",
+            $"{successCount} emergency SMS sent successfully.",
+            "OK");
+
+        await Task.Delay(3000);
+
+        var sortedContacts =
+            contacts.OrderBy(x => x.Priority)
+                    .ToList();
+
+        foreach (var contact in sortedContacts)
+        {
+            try
+            {
+                CallService.MakePhoneCall(
+                    contact.PhoneNumber);
+
+                await Task.Delay(20000);
+
+                await Database.SaveCallHistoryAsync(
+                    new CallHistory
+                    {
+                        PhoneNumber = contact.PhoneNumber,
+                        CallTime = DateTime.Now
+                    });
+            }
+            catch
+            {
+            }
+        }
+
+        await Application.Current!.Windows[0].Page!.DisplayAlert(
+            "SOS Activated",
+            "Emergency alerts sent successfully.",
+            "OK");
+    }
+    catch (Exception ex)
+    {
+        await Application.Current!.Windows[0].Page!.DisplayAlert(
+            "SOS Error",
+            ex.ToString(),
+            "OK");
+    }
+    finally
+    {
+        isSendingSOS = false;
+    }
+}
+}

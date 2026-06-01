@@ -1,0 +1,152 @@
+﻿@using Ranaraghini.Services
+
+@inject SessionService SessionService
+@inject NavigationManager Navigation
+<div class="nav-container">
+
+    <input type="checkbox"
+           id="nav-toggle"
+           class="nav-toggle" />
+
+    <!-- TOP NAVBAR -->
+
+    <div class="top-row navbar navbar-dark">
+
+        <label for="nav-toggle"
+               class="navbar-toggler">
+        </label>
+
+        <a class="navbar-brand" href="">
+            Ranaraghini
+        </a>
+
+    </div>
+
+    <!-- SIDEBAR -->
+
+    <div class="nav-scrollable">
+
+        <nav class="flex-column">
+
+            @if (!SessionService.IsLoggedIn())
+            {
+                <!-- LOGIN -->
+
+                <div class="nav-item px-3">
+
+                    <NavLink class="nav-link"
+                             href="/login">
+
+                        🔐 Login
+
+                    </NavLink>
+
+                </div>
+
+                <!-- REGISTER -->
+
+                <div class="nav-item px-3">
+
+                    <NavLink class="nav-link"
+                             href="/register">
+
+                        📝 Register
+
+                    </NavLink>
+
+                </div>
+            }
+            else
+            {
+                <!-- HOME -->
+
+                <div class="nav-item px-3">
+
+                    <NavLink class="nav-link"
+                             href="/">
+
+                        🏠 Home
+
+                    </NavLink>
+
+                </div>
+
+                <!-- CONTACTS -->
+
+                <div class="nav-item px-3">
+
+                    <NavLink class="nav-link"
+                             href="/contacts">
+
+                        👥 Contacts
+
+                    </NavLink>
+
+                </div>
+
+                <!-- TRACKING -->
+
+                <div class="nav-item px-3">
+
+                    <NavLink class="nav-link"
+                             href="/tracking">
+
+                        📍 Tracking
+
+                    </NavLink>
+
+                </div>
+
+                <!-- ALERTS -->
+
+                <div class="nav-item px-3">
+
+                    <NavLink class="nav-link"
+                             href="/alerts">
+
+                        🚨 Alerts
+
+                    </NavLink>
+
+                </div>
+
+                <!-- SETTINGS -->
+
+                <div class="nav-item px-3">
+
+                    <NavLink class="nav-link"
+                             href="/settings">
+
+                        ⚙️ Settings
+
+                    </NavLink>
+
+                </div>
+
+                <!-- LOGOUT -->
+
+                <button class="logout-btn"
+                        @onclick="Logout">
+
+                    Logout
+
+                </button>
+            }
+
+        </nav>
+
+    </div>
+
+</div>
+
+@code {
+   
+    void Logout()
+    {
+        SessionService.Logout();
+
+
+        Navigation.NavigateTo("/login", true);
+    }
+
+}

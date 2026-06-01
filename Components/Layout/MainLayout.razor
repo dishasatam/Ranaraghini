@@ -1,0 +1,21 @@
+﻿@using Ranaraghini.Services
+@inherits LayoutComponentBase
+
+@inject SessionService SessionService
+
+<div class="page">
+
+    @if (SessionService.IsLoggedIn())
+    {
+        <div class="sidebar">
+            <NavMenu />
+        </div>
+    }
+
+    <main>
+        <article class="content px-0">
+            @Body
+        </article>
+    </main>
+
+</div>

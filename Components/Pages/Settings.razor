@@ -1,0 +1,130 @@
+﻿@page "/settings"
+@using Microsoft.AspNetCore.Components.Forms
+@using Ranaraghini.Services
+
+@inject SessionService SessionService
+@inject NavigationManager Navigation
+<PageTitle>Settings</PageTitle>
+
+<div class="settings-container">
+
+    <div class="settings-header">
+        <h1>Settings</h1>
+        <p>Manage your safety preferences</p>
+    </div>
+
+    <div class="settings-card">
+
+        <div class="setting-item">
+            <div>
+                <h3>Dark Mode</h3>
+                <p>Enable dark theme</p>
+            </div>
+
+                 <InputCheckbox @bind-Value="darkMode" />
+            </div>
+
+        <div class="setting-item">
+            <div>
+                <h3>Live Location</h3>
+                <p>Share real-time location during SOS</p>
+            </div>
+
+                    <InputCheckbox @bind-Value="liveLocation" />
+            </div>
+
+        <div class="setting-item">
+            <div>
+                <h3>Emergency Auto Call</h3>
+                <p>Automatically call emergency contact</p>
+            </div>
+
+            <InputCheckbox @bind-Value="autoCall" />
+        </div>
+
+        <div class="setting-item">
+            <div>
+                <h3>Shake Detection</h3>
+                <p>Trigger SOS by shaking phone</p>
+            </div>
+
+            <InputCheckbox @bind-Value="shakeDetection" />
+        </div>
+
+        <div class="setting-item">
+            <div>
+                <h3>Voice SOS</h3>
+                <p>Activate SOS using voice command</p>
+            </div>
+
+            <InputCheckbox @bind-Value="voiceSos" />
+        </div>
+        <button class="save-btn"
+                @onclick="SaveSettings">
+            Save Settings
+        </button>
+    </div>
+    
+</div>
+@code {
+
+    private bool darkMode;
+    private bool liveLocation = true;
+    private bool autoCall = true;
+    private bool shakeDetection;
+    private bool voiceSos;
+
+    protected override void OnInitialized()
+    {
+        bool loggedIn = SessionService.IsLoggedIn();
+
+        if (!loggedIn)
+        {
+            Navigation.NavigateTo("/login");
+            return;
+        }
+
+        darkMode =
+            Preferences.Get("DarkMode", false);
+
+        liveLocation =
+            Preferences.Get("LiveLocation", true);
+
+        autoCall =
+            Preferences.Get("AutoCall", true);
+
+        shakeDetection =
+            Preferences.Get("ShakeDetection", false);
+
+        voiceSos =
+            Preferences.Get("VoiceSOS", false);
+    }
+
+    private async Task SaveSettings()
+    {
+        Preferences.Set(
+            "DarkMode",
+            darkMode);
+
+        Preferences.Set(
+            "LiveLocation",
+            liveLocation);
+
+        Preferences.Set(
+            "AutoCall",
+            autoCall);
+
+        Preferences.Set(
+            "ShakeDetection",
+            shakeDetection);
+
+        Preferences.Set(
+            "VoiceSOS",
+            voiceSos);
+
+        await Shell.Current.DisplayAlert(
+            "Success",
+            "Settings Saved Successfully",
+            "OK");
+    }
+}

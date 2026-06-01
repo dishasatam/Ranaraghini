@@ -1,0 +1,75 @@
+﻿@page "/voicesos"
+
+@using Ranaraghini.Services
+
+@inject SessionService SessionService
+@inject NavigationManager Navigation
+
+<PageTitle>Voice SOS</PageTitle>
+
+<div class="feature-page">
+
+    <div class="feature-card">
+
+        <h1>🎤 Voice SOS</h1>
+
+        <p>
+            Activate SOS using voice command.
+        </p>
+
+        <div class="status-box">
+
+            <h3>Status</h3>
+
+            <h2>@status</h2>
+
+        </div>
+
+        <button class="feature-btn"
+                @onclick="StartVoice">
+
+            Start Listening
+
+        </button>
+
+    </div>
+
+</div>
+
+@code {
+
+    private string status = "Ready";
+
+    private async Task StartVoice()
+    {
+        status = "🎤 Listening...";
+        StateHasChanged();
+
+        await Task.Delay(3000);
+
+        status = "🗣 Voice Detected : HELP";
+        StateHasChanged();
+
+        await Task.Delay(2000);
+
+        status = "🚨 SOS ACTIVATED";
+        StateHasChanged();
+
+        await Task.Delay(1000);
+
+        await Application.Current!.Windows[0].Page!.DisplayAlert(
+            "SOS Activated",
+            "Emergency alert triggered successfully.",
+            "OK");
+    }
+
+    protected override void OnInitialized()
+    {
+        bool loggedIn = SessionService.IsLoggedIn();
+
+        if (!loggedIn)
+        {
+            Navigation.NavigateTo("/login");
+        }
+    }
+}

@@ -1,0 +1,168 @@
+/* HIDDEN CHECKBOX */
+
+.nav-toggle {
+    display: none;
+}
+
+/* TOP NAVBAR */
+
+.top-row {
+    height: 82px;
+    width: 100%;
+    position: sticky;
+    top: 0;
+    left: 0;
+    z-index: 5000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient( 90deg, #08122b 0%, #22105f 50%, #3b004f 100% );
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+    box-shadow: 0 5px 25px rgba(0,0,0,0.45);
+    backdrop-filter: blur(12px);
+}
+
+/* APP TITLE */
+
+.navbar-brand {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 34px;
+    font-weight: 900;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    background: linear-gradient( 90deg, #ffffff, #d8b4fe, #ff4da6 );
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    font-family: 'Segoe UI', sans-serif;
+    text-shadow: 0 0 20px rgba(192,132,252,0.45);
+    text-decoration: none;
+    white-space: nowrap;
+}
+
+/* HAMBURGER BUTTON */
+
+.navbar-toggler {
+    cursor: pointer;
+    width: 52px;
+    height: 52px;
+    position: absolute;
+    left: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 6000;
+    border-radius: 16px;
+    border: 1px solid rgba(255,255,255,0.12);
+    background: rgba(255,255,255,0.08);
+    backdrop-filter: blur(10px);
+    box-shadow: 0 5px 20px rgba(0,0,0,0.35);
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='rgba%28255,255,255,0.95%29' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2.5' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e");
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: 28px;
+    transition: 0.3s ease;
+}
+
+    .navbar-toggler:hover {
+        transform: translateY(-50%) scale(1.05);
+    }
+
+/* SIDEBAR */
+
+.nav-scrollable {
+    display: none;
+    padding-top: 20px;
+    animation: fadeIn 0.3s ease;
+    background: linear-gradient( 180deg, #162454 0%, #3f0a63 100% );
+}
+
+/* SHOW SIDEBAR */
+
+.nav-toggle:checked ~ .nav-scrollable {
+    display: block;
+}
+
+/* NAV ITEMS */
+
+.nav-item {
+    padding: 8px 14px;
+}
+
+    .nav-item ::deep a {
+        color: #f1f5f9;
+        border-radius: 18px;
+        height: 62px;
+        display: flex;
+        align-items: center;
+        padding-left: 18px;
+        font-size: 20px;
+        font-weight: 500;
+        text-decoration: none;
+        transition: 0.25s ease;
+    }
+
+        .nav-item ::deep a:hover {
+            background: rgba(255,255,255,0.08);
+            transform: translateX(4px);
+        }
+
+        .nav-item ::deep a.active {
+            background: rgba(255,255,255,0.22);
+            box-shadow: 0 5px 20px rgba(255,255,255,0.08);
+        }
+
+/* DESKTOP */
+
+@media (min-width: 641px) {
+
+    .navbar-toggler {
+        display: none;
+    }
+
+    .nav-scrollable {
+        display: block;
+        height: calc(100vh - 82px);
+        overflow-y: auto;
+    }
+}
+
+/* MOBILE */
+
+@media (max-width: 640px) {
+
+    .navbar-brand {
+        font-size: 24px;
+        letter-spacing: 2px;
+    }
+
+    .nav-item ::deep a {
+        height: 58px;
+        font-size: 18px;
+    }
+}
+
+/* ANIMATION */
+
+@keyframes fadeIn {
+
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.logout-btn {
+    width: 100%;
+    padding: 12px;
+    border: none;
+    background: #c9184a;
+    color: white;
+    border-radius: 10px;
+    margin-top: 20px;
+}

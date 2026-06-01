@@ -1,0 +1,71 @@
+﻿.alerts-page {
+    min-height: 100vh;
+    padding: 25px;
+    background: linear-gradient(13deg,#ff4b2b,#ff416c);
+}
+
+.alerts-header {
+    text-align: center;
+    color: white;
+    margin-bottom: 25px;
+}
+
+    .alerts-header h1 {
+        font-size: 42px;
+        font-weight: bold;
+    }
+
+    .alerts-header p {
+        font-size: 18px;
+    }
+
+.summary-card {
+    background: rgb(255, 216, 0);
+    border-radius: 20px;
+    padding: 20px;
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.alert-count {
+    font-size: 40px;
+    font-weight: bold;
+    color: #ff416c;
+}
+
+.refresh-btn {
+    width: 100%;
+    padding: 15px;
+    border: none;
+    border-radius: 15px;
+    background: white;
+    font-size: 18px;
+    font-weight: bold;
+    margin-bottom: 20px;
+}
+
+.alert-list {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.alert-card {
+    background: #00ff21;
+    border-radius: 20px;
+    padding: 20px;
+    box-shadow: 0 6px 20px rgba(0,0,0,.15);
+}
+
+    .alert-card h3 {
+        color: #ff416c;
+        margin-bottom: 10px;
+    }
+
+.empty-alert {
+    text-align: center;
+    background: #7bedee;
+    padding: 25px;
+    border-radius: 20px;
+    font-size: 18px;
+}

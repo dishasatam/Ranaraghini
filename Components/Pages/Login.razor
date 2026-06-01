@@ -1,0 +1,157 @@
+﻿@page "/login"
+
+@using System.ComponentModel.DataAnnotations
+@using Ranaraghini.Services
+@using Ranaraghini.Data
+@using Ranaraghini.Models
+
+@inject NavigationManager Navigation
+@inject SessionService SessionService
+@inject AppDatabase Database
+
+<PageTitle>Login</PageTitle>
+
+<div class="auth-page">
+
+    <div class="auth-card">
+
+        <!-- LOGO -->
+
+        <img src="images/logo.jpg"
+             class="auth-logo" />
+
+        <h1>Welcome Back</h1>
+
+        <p class="subtitle">
+            Login to continue your safety journey
+        </p>
+
+        <!-- FORM -->
+
+        <EditForm Model="@loginModel"
+                  OnValidSubmit="HandleLogin">
+
+            <DataAnnotationsValidator />
+
+            <ValidationSummary />
+
+            <!-- EMAIL -->
+
+            <div class="input-box">
+
+                <label>Email</label>
+
+                <InputText class="auth-input"
+                           @bind-Value="loginModel.Email"
+                           placeholder="Enter email" />
+
+            </div>
+
+            <!-- PASSWORD -->
+
+            <div class="input-box">
+
+                <label>Password</label>
+
+                <InputText class="auth-input"
+                           type="password"
+                           @bind-Value="loginModel.Password"
+                           placeholder="Enter password" />
+
+            </div>
+
+            <!-- BUTTON -->
+
+            <button type="submit"
+                    class="auth-btn">
+
+                Login
+
+            </button>
+
+        </EditForm>
+
+        <!-- REGISTER LINK -->
+
+        <div class="bottom-link">
+
+            Don't have an account?
+
+            <NavLink href="/register">
+                Register
+            </NavLink>
+
+        </div>
+
+    </div>
+
+</div>
+
+@code {
+
+    private LoginModel loginModel = new();
+
+    private async Task HandleLogin()
+    {
+        var existingUser =
+             await Database.GetUserByEmailAsync(
+                 loginModel.Email);
+
+        if (existingUser == null)
+        {
+            await Application.Current.MainPage.DisplayAlert(
+                "Not Registered",
+                "Please register first.",
+                "OK");
+
+            return;
+        }
+
+        var user =
+            await Database.LoginUserAsync(
+                loginModel.Email,
+                loginModel.Password);
+
+        if (user == null)
+        {
+            await Application.Current.MainPage.DisplayAlert(
+                "Login Failed",
+                "Incorrect password.",
+                "OK");
+
+            return;
+        }
+
+        // SAVE SESSION
+
+        SessionService.SaveLogin(user.Email);
+        await Database.SaveLoginHistoryAsync(
+            new LoginHistory
+            {
+                Email = user.Email,
+                LoginTime = DateTime.Now
+            });
+
+        // SUCCESS
+
+        await Application.Current.MainPage.DisplayAlert(
+            "Success",
+            "Login successful",
+            "OK");
+
+        // GO HOME
+
+        Navigation.NavigateTo("/",true);
+    }
+
+    public class LoginModel
+    {
+        [Required(ErrorMessage = "Email required")]
+        [EmailAddress(ErrorMessage = "Invalid email")]
+        public string Email { get; set; } = "";
+
+        [Required(ErrorMessage = "Password required")]
+        [MinLength(6)]
+        public string Password { get; set; } = "";
+    }
+}

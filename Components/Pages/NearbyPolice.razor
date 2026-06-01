@@ -1,0 +1,77 @@
+﻿@page "/nearbypolice"
+
+@using Ranaraghini.Services
+
+@inject SessionService SessionService
+@inject NavigationManager Navigation
+@inject LocationService LocationService
+
+<PageTitle>Nearby Police</PageTitle>
+
+<div class="feature-page">
+
+    <div class="feature-card">
+
+        <h1>🚓 Nearby Police</h1>
+
+        <p>
+            Find nearby police stations instantly.
+        </p>
+
+        <button class="feature-btn"
+                @onclick="FindPolice">
+
+            Find Police
+
+        </button>
+
+    </div>
+
+</div>
+
+@code {
+
+    private async Task FindPolice()
+    {
+        try
+        {
+            var location =
+                await LocationService
+                .GetCurrentLocation();
+
+            if (location == null)
+            {
+                await Shell.Current.DisplayAlert(
+                    "Location Error",
+                    "Unable to get current location.",
+                    "OK");
+
+                return;
+            }
+
+            string mapsUrl =
+                $"https://www.google.com/maps/search/police+station/@{location.Latitude},{location.Longitude},15z";
+
+            await Launcher.OpenAsync(
+                new Uri(mapsUrl));
+        }
+        catch (Exception ex)
+        {
+            await Shell.Current.DisplayAlert(
+                "Error",
+                ex.Message,
+                "OK");
+        }
+    }
+
+    protected override void OnInitialized()
+    {
+        bool loggedIn =
+            SessionService.IsLoggedIn();
+
+        if (!loggedIn)
+        {
+            Navigation.NavigateTo("/login");
+        }
+    }
+}

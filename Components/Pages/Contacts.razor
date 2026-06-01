@@ -1,0 +1,162 @@
+﻿@page "/contacts"
+
+@using Ranaraghini.Models
+@using Ranaraghini.Data
+@using Ranaraghini.Services
+
+@inject SessionService SessionService
+@inject NavigationManager Navigation
+@inject AppDatabase Database
+
+<PageTitle>Trusted Contacts</PageTitle>
+
+<div class="contacts-page">
+
+    <h1 class="page-title">
+        Trusted Contacts
+    </h1>
+
+    <div class="contact-form">
+
+        <input type="text"
+               placeholder="Full Name"
+               @bind="newContact.Name"
+               maxlength="50" />
+
+        <input type="tel"
+               placeholder="Phone Number"
+               @bind="newContact.PhoneNumber"
+               maxlength="10" />
+
+        <input type="text"
+               placeholder="Relationship"
+               @bind="newContact.Relationship"
+               maxlength="30" />
+
+        <input type="number"
+               placeholder="Priority (1 Highest)"
+               @bind="newContact.Priority" />
+
+        <button class="save-btn"
+                @onclick="SaveContact">
+            Save Contact
+        </button>
+
+        @if (!string.IsNullOrEmpty(errorMessage))
+        {
+            <p class="error-text">@errorMessage</p>
+        }
+
+    </div>
+
+    <div class="contacts-list">
+
+        @foreach (var contact in contacts)
+        {
+            <div class="contact-card">
+
+                <h3>@contact.Name</h3>
+
+                <p>@contact.PhoneNumber</p>
+
+                <span>@contact.Relationship</span>
+
+                <button class="btn btn-warning"
+                        @onclick="() => EditContact(contact)">
+
+                    Edit
+
+                </button>
+                <button class="delete-btn"
+                        @onclick="() => DeleteContact(contact)">
+                    Delete
+                </button>
+
+            </div>
+        }
+
+    </div>
+
+</div>
+
+@code {
+
+    private List<EmergencyContact> contacts = new();
+
+    private EmergencyContact newContact = new();
+
+    private string errorMessage = "";
+
+    protected override async Task OnInitializedAsync()
+    {
+        contacts = await Database.GetContactsAsync();
+    }
+
+    private async Task SaveContact()
+    {
+        errorMessage = "";
+
+        // VALIDATION
+
+        if (string.IsNullOrWhiteSpace(newContact.Name) ||
+            string.IsNullOrWhiteSpace(newContact.PhoneNumber) ||
+            string.IsNullOrWhiteSpace(newContact.Relationship))
+        {
+            errorMessage = "All fields are required.";
+            return;
+        }
+
+        if (newContact.PhoneNumber.Length != 10)
+        {
+            errorMessage = "Phone number must be 10 digits.";
+            return;
+        }
+
+        if (!newContact.PhoneNumber.All(char.IsDigit))
+        {
+            errorMessage = "Phone number must contain only numbers.";
+            return;
+        }
+
+        if (contacts.Count >= 5)
+        {
+            errorMessage = "Maximum 5 emergency contacts allowed.";
+            return;
+        }
+
+        await Database.SaveContactAsync(newContact);
+
+        contacts = await Database.GetContactsAsync();
+
+        newContact = new EmergencyContact();
+    }
+
+    private async Task DeleteContact(EmergencyContact contact)
+    {
+        await Database.DeleteContactAsync(contact);
+
+        contacts = await Database.GetContactsAsync();
+    }
+    private void EditContact(EmergencyContact contact)
+    {
+        newContact = new EmergencyContact
+        {
+            Id = contact.Id,
+            Name = contact.Name,
+            PhoneNumber = contact.PhoneNumber,
+            Relationship = contact.Relationship,
+            Priority = contact.Priority
+
+        };
+    }
+    protected override void OnInitialized()
+    {
+        bool loggedIn =
+            SessionService.IsLoggedIn();
+
+        if (!loggedIn)
+        {
+            Navigation.NavigateTo("/login");
+        }
+    }
+}

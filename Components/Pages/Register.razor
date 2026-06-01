@@ -1,0 +1,181 @@
+﻿@page "/register"
+
+@using System.ComponentModel.DataAnnotations
+@using Ranaraghini.Models
+@using Ranaraghini.Data
+
+@inject AppDatabase Database
+@inject NavigationManager Navigation
+
+<PageTitle>Register</PageTitle>
+
+<div class="register-page">
+
+    <div class="register-overlay">
+
+        <div class="register-card">
+
+            <!-- LOGO -->
+
+            <img src="images/logo.jpg"
+                 class="register-logo" />
+
+            <h1>Create Account</h1>
+
+            <p class="register-subtitle">
+                Join Ranaraghini Safety Network
+            </p>
+
+            <!-- FORM -->
+
+            <EditForm Model="@registerModel"
+                      OnValidSubmit="HandleRegister">
+
+                <DataAnnotationsValidator />
+
+                <ValidationSummary />
+
+                <!-- FULL NAME -->
+
+                <div class="input-group">
+
+                    <label>Full Name      </label>
+                   <br/>
+                    <InputText class="form-input"
+                               @bind-Value="registerModel.FullName"
+                               placeholder="Enter full name" />
+
+                </div>
+
+                <!-- EMAIL -->
+
+                <div class="input-group">
+
+                    <label>Email Address      </label>
+                    <br />
+                    <InputText class="form-input"
+                               @bind-Value="registerModel.Email"
+                               placeholder="Enter email address" />
+
+                </div>
+
+                <!-- PASSWORD -->
+
+                <div class="input-group">
+
+                    <label>Password      </label>
+                    <br />
+                    <InputText class="form-input"
+                               type="password"
+                               @bind-Value="registerModel.Password"
+                               placeholder="Enter password" />
+
+                </div>
+
+                <!-- CONFIRM PASSWORD -->
+
+                <div class="input-group">
+
+                    <label>Confirm Password</label>
+                    <br />
+                    <InputText class="form-input"
+                               type="password"
+                               @bind-Value="registerModel.ConfirmPassword"
+                               placeholder="Confirm password" />
+
+                </div>
+
+                <!-- BUTTON -->
+
+                <button type="submit"
+                        class="register-btn">
+
+                    Register
+
+                </button>
+
+            </EditForm>
+
+            <!-- LOGIN LINK -->
+
+            <div class="bottom-text">
+
+                Already have an account?
+
+                <NavLink href="/login">
+                    Login
+                </NavLink>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+@code {
+
+    private RegisterModel registerModel = new();
+
+    private async Task HandleRegister()
+    {
+        // CHECK EXISTING EMAIL
+
+        var existingUser =
+            await Database.GetUserByEmailAsync(
+                registerModel.Email);
+
+        if (existingUser != null)
+        {
+            await Application.Current.MainPage.DisplayAlert(
+                "Registration Failed",
+                "Email already registered.",
+                "OK");
+
+            return;
+        }
+
+        // CREATE USER OBJECT
+
+        UserAccount user = new()
+        {
+            FullName = registerModel.FullName,
+            Email = registerModel.Email,
+            Password = registerModel.Password
+        };
+
+        // SAVE USER
+
+        await Database.SaveUserAsync(user);
+
+        // SUCCESS MESSAGE
+
+        await Application.Current.MainPage.DisplayAlert(
+            "Success",
+            "Account created successfully",
+            "OK");
+
+        // GO LOGIN
+
+        Navigation.NavigateTo("/login");
+    }
+
+    public class RegisterModel
+    {
+        [Required]
+        public string FullName { get; set; } = "";
+
+        [Required]
+        [EmailAddress]
+        public string Email { get; set; } = "";
+
+        [Required]
+        [MinLength(6)]
+        public string Password { get; set; } = "";
+
+        [Compare(nameof(Password),
+            ErrorMessage = "Passwords do not match")]
+        public string ConfirmPassword { get; set; } = "";
+    }
+}

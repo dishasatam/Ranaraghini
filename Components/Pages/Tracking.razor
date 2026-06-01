@@ -1,0 +1,106 @@
+﻿@page "/tracking"
+@using Ranaraghini.Services
+@using Ranaraghini.Data
+@using Ranaraghini.Models
+@inject AppDatabase Database
+@inject SessionService SessionService
+@inject NavigationManager Navigation
+@inject LocationService LocationService
+
+<PageTitle>Live Tracking</PageTitle>
+
+<div class="tracking-page">
+
+    <h1 class="tracking-title">
+        Live Location
+    </h1>
+
+    <div class="tracking-card">
+
+        <h3>Latitude</h3>
+        <p>@latitude</p>
+
+        <h3>Longitude</h3>
+        <p>@longitude</p>
+
+        <h3>Exact Address</h3>
+        <p class="address-text">
+            @address
+        </p>
+
+        <button class="track-btn"
+                @onclick="GetLocation">
+
+            Get Exact Live Location
+
+        </button>
+
+    </div>
+
+</div>
+
+@code {
+
+    private string latitude = "Not Available";
+
+    private string longitude = "Not Available";
+
+    private string address = "Unknown";
+
+    private async Task GetLocation()
+    {
+        var location =
+            await LocationService
+            .GetCurrentLocation();
+
+        if (location != null)
+        {
+            latitude =
+                location.Latitude.ToString();
+
+            longitude =
+                location.Longitude.ToString();
+
+            address =
+                await LocationService
+                .GetExactAddress(
+                    location.Latitude,
+                    location.Longitude);
+
+            await Database.SaveLocationAsync(
+                new LiveLocation
+                {
+                    Latitude =
+                        location.Latitude,
+
+                    Longitude =
+                        location.Longitude,
+
+                    Address =
+                        address,
+
+                    DateTime =
+                        DateTime.Now
+                });
+        }
+        else
+        {
+            latitude = "Permission Denied";
+
+            longitude = "Permission Denied";
+
+            address = "Location Unavailable";
+        }
+    }
+    protected override void OnInitialized()
+    {
+        bool loggedIn =
+            SessionService.IsLoggedIn();
+
+        if (!loggedIn)
+        {
+            Navigation.NavigateTo("/login");
+        }
+    }
+
+}

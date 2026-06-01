@@ -1,0 +1,82 @@
+﻿.settings-container {
+    min-height: 100vh;
+    padding: 30px;
+    background: linear-gradient(135deg, #f5f7fa, #eef2ff);
+}
+
+.settings-header {
+    text-align: center;
+    margin-bottom: 40px;
+}
+
+    .settings-header h1 {
+        font-size: 42px;
+        font-weight: bold;
+        color: #111827;
+    }
+
+    .settings-header p {
+        color: gray;
+        font-size: 18px;
+    }
+
+.settings-card {
+    max-width: 800px;
+    margin: auto;
+    background: white;
+    border-radius: 25px;
+    padding: 30px;
+    box-shadow: 0 10px 35px rgba(0,0,0,0.1);
+}
+
+.setting-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 22px 0;
+    border-bottom: 1px solid #eee;
+}
+
+    .setting-item:last-child {
+        border-bottom: none;
+    }
+
+    .setting-item h3 {
+        margin: 0;
+        font-size: 20px;
+        color: #111827;
+    }
+
+    .setting-item p {
+        margin-top: 5px;
+        color: gray;
+        font-size: 14px;
+    }
+
+    .setting-item input[type="checkbox"] {
+        width: 24px;
+        height: 24px;
+        accent-color: #ff4d6d;
+        cursor: pointer;
+    }
+
+@media(max-width: 768px) {
+
+    .settings-container {
+        padding: 20px;
+    }
+
+    .settings-card {
+        padding: 20px;
+    }
+
+    .setting-item {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 15px;
+    }
+
+        .setting-item input[type="checkbox"] {
+            align-self: flex-end;
+        }
+}

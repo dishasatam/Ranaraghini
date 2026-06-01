@@ -1,0 +1,65 @@
+﻿.feature-page {
+    min-height: 100vh;
+    background: linear-gradient( 135deg, #ff0844, #ffb199);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+}
+
+.feature-card {
+    width: 100%;
+    max-width: 430px;
+    background: rgba(255,255,255,0.15);
+    backdrop-filter: blur(18px);
+    border-radius: 30px;
+    padding: 45px 30px;
+    text-align: center;
+    box-shadow: 0 10px 45px rgba(0,0,0,0.3);
+    border: 1px solid rgba(255,255,255,0.2);
+    animation: pulseCard 2s infinite;
+}
+
+    .feature-card h1 {
+        color: white;
+        font-size: 42px;
+        margin-bottom: 20px;
+    }
+
+    .feature-card p {
+        color: #f1f1f1;
+        font-size: 18px;
+        line-height: 1.6;
+    }
+
+.feature-btn {
+    margin-top: 30px;
+    width: 100%;
+    padding: 18px;
+    border: none;
+    border-radius: 18px;
+    background: white;
+    color: #ff0844;
+    font-size: 20px;
+    font-weight: bold;
+    transition: 0.3s;
+}
+
+    .feature-btn:hover {
+        transform: scale(1.05);
+    }
+
+@keyframes pulseCard {
+
+    0% {
+        transform: scale(1);
+    }
+
+    50% {
+        transform: scale(1.02);
+    }
+
+    100% {
+        transform: scale(1);
+    }
+}
